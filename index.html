@@ -59,6 +59,7 @@
       height: 20px;
       background: yellow;
       border-radius: 50%;
+      color: gold;
     }
 
     #score {
@@ -95,7 +96,7 @@
 
     .controls {
       position: absolute;
-      bottom: 20px;
+      bottom: 10%;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -152,12 +153,18 @@
     let keys = {};
     let gameActive = true;
 
-    const PLAYER_SPEED = 15; // Kecepatan pergerakan pemain untuk perangkat HP
+    const PLAYER_SPEED = 15; // Kecepatan pergerakan pemain
     const OBJECT_SPEED = 3;
     const BULLET_SPEED = 8;
     const ENEMY_BULLET_SPEED = 5;
     const SPAWN_RATE = 2000;
     const ENEMY_SHOOT_RATE = 1500;
+    let controlHold = {
+      left: false,
+      right: false,
+      up: false,
+      down: false
+    };
 
     // Handle keyboard controls
     document.addEventListener('keydown', (e) => (keys[e.key] = true));
@@ -168,10 +175,10 @@
       const maxX = window.innerWidth - 60;
       const maxY = window.innerHeight - 60;
 
-      if (keys['ArrowLeft'] && playerX > 0) playerX -= PLAYER_SPEED;
-      if (keys['ArrowRight'] && playerX < maxX) playerX += PLAYER_SPEED;
-      if (keys['ArrowUp'] && playerY > 0) playerY -= PLAYER_SPEED;
-      if (keys['ArrowDown'] && playerY < maxY) playerY += PLAYER_SPEED;
+      if (keys['ArrowLeft'] || controlHold.left) playerX -= PLAYER_SPEED;
+      if (keys['ArrowRight'] || controlHold.right) playerX += PLAYER_SPEED;
+      if (keys['ArrowUp'] || controlHold.up) playerY -= PLAYER_SPEED;
+      if (keys['ArrowDown'] || controlHold.down) playerY += PLAYER_SPEED;
 
       player.style.left = `${playerX}px`;
       player.style.top = `${playerY}px`;
@@ -186,16 +193,6 @@
       bullet.style.top = `${playerY - 10}px`;
       gameContainer.appendChild(bullet);
       bullets.push(bullet);
-    }
-
-    // Shoot enemy bullets
-    function shootEnemyBullet(enemyX, enemyY) {
-      const bullet = document.createElement('div');
-      bullet.className = 'enemy-bullet';
-      bullet.style.left = `${enemyX + 25}px`;
-      bullet.style.top = `${enemyY + 50}px`;
-      gameContainer.appendChild(bullet);
-      enemyBullets.push(bullet);
     }
 
     // Move objects (bullets, enemies, meteors, enemy bullets)
@@ -359,19 +356,37 @@
     // Start game loop
     gameLoop();
 
-    // Button listeners for mobile controls
-    document.getElementById('left').addEventListener('click', () => {
-      if (playerX > 0) playerX -= PLAYER_SPEED;
-    });
-    document.getElementById('right').addEventListener('click', () => {
-      if (playerX < window.innerWidth - 60) playerX += PLAYER_SPEED;
-    });
-    document.getElementById('up').addEventListener('click', () => {
-      if (playerY > 0) playerY -= PLAYER_SPEED;
-    });
-    document.getElementById('down').addEventListener('click', () => {
-      if (playerY < window.innerHeight - 60) playerY += PLAYER_SPEED;
-    });
+    // Button listeners for mobile controls (long press implementation)
+    function startLongPressControl(buttonId, direction) {
+      const button = document.getElementById(buttonId);
+      let pressTimer;
+
+      button.addEventListener('touchstart', () => {
+        controlHold[direction] = true;
+        pressTimer = setInterval(() => {
+          if (controlHold[direction]) {
+            playerX += direction === 'right' ? PLAYER_SPEED : (direction === 'left' ? -PLAYER_SPEED : 0);
+            playerY += direction === 'down' ? PLAYER_SPEED : (direction === 'up' ? -PLAYER_SPEED : 0);
+          }
+        }, 100); // Move every 100ms while button is pressed
+      });
+
+      button.addEventListener('touchend', () => {
+        clearInterval(pressTimer);
+        controlHold[direction] = false;
+      });
+
+      button.addEventListener('touchcancel', () => {
+        clearInterval(pressTimer);
+        controlHold[direction] = false;
+      });
+    }
+
+    startLongPressControl('left', 'left');
+    startLongPressControl('right', 'right');
+    startLongPressControl('up', 'up');
+    startLongPressControl('down', 'down');
+
     document.getElementById('shoot').addEventListener('click', shootBullet);
   </script>
 </body>
