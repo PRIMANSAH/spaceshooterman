@@ -116,6 +116,17 @@
     .controls button:active {
       background: rgba(255, 255, 255, 0.5);
     }
+
+    /* Responsiveness */
+    @media (max-width: 600px) {
+      .controls button {
+        width: 50px;
+        height: 50px;
+      }
+      #score {
+        font-size: 20px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -152,7 +163,7 @@
     let keys = {};
     let gameActive = true;
 
-    const PLAYER_SPEED = 5; // Kecepatan pergerakan pemain lebih lambat
+    const PLAYER_SPEED = 5; // Kecepatan pergerakan pemain
     const OBJECT_SPEED = 3;
     const BULLET_SPEED = 8;
     const ENEMY_BULLET_SPEED = 5;
@@ -192,7 +203,7 @@
       if (!gameActive) return;
       const bullet = document.createElement('div');
       bullet.className = 'bullet';
-      bullet.style.left = `${playerX + 25 }px`;
+      bullet.style.left = `${playerX + -5 }px`;
       bullet.style.top = `${playerY - 10}px`;
       gameContainer.appendChild(bullet);
       bullets.push(bullet);
@@ -336,6 +347,16 @@
         enemies.forEach((enemy) => shootEnemyBullet(enemy.offsetLeft, enemy.offsetTop));
       }
     }, ENEMY_SHOOT_RATE);
+
+    // Function for enemy to shoot bullets
+    function shootEnemyBullet(x, y) {
+      const bullet = document.createElement('div');
+      bullet.className = 'enemy-bullet';
+      bullet.style.left = `${x + 25}px`; // Centered on the enemy
+      bullet.style.top = `${y + 60}px`; // Just below the enemy
+      gameContainer.appendChild(bullet);
+      enemyBullets.push(bullet);
+    }
 
     // Start game
     spawnPlayer();
