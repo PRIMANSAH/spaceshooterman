@@ -152,7 +152,7 @@
     let keys = {};
     let gameActive = true;
 
-    const PLAYER_SPEED = 15; // Kecepatan pergerakan pemain
+    const PLAYER_SPEED = 5; // Kecepatan pergerakan pemain lebih lambat
     const OBJECT_SPEED = 3;
     const BULLET_SPEED = 8;
     const ENEMY_BULLET_SPEED = 5;
@@ -179,6 +179,10 @@
       if (keys['ArrowUp'] || controlHold.up) playerY -= PLAYER_SPEED;
       if (keys['ArrowDown'] || controlHold.down) playerY += PLAYER_SPEED;
 
+      // Prevent player from moving out of bounds
+      playerX = Math.max(0, Math.min(playerX, maxX));
+      playerY = Math.max(0, Math.min(playerY, maxY));
+
       player.style.left = `${playerX}px`;
       player.style.top = `${playerY}px`;
     }
@@ -188,7 +192,7 @@
       if (!gameActive) return;
       const bullet = document.createElement('div');
       bullet.className = 'bullet';
-      bullet.style.left = `${playerX + -3 }px`;
+      bullet.style.left = `${playerX + 25 }px`;
       bullet.style.top = `${playerY - 10}px`;
       gameContainer.appendChild(bullet);
       bullets.push(bullet);
@@ -364,10 +368,10 @@
         controlHold[direction] = true;
         pressTimer = setInterval(() => {
           if (controlHold[direction]) {
-            playerX += direction === 'right' ? PLAYER_SPEED : (direction === 'left' ? -PLAYER_SPEED : 0);
-            playerY += direction === 'down' ? PLAYER_SPEED : (direction === 'up' ? -PLAYER_SPEED : 0);
+            playerX += direction === 'right' ? 2 : (direction === 'left' ? -2 : 0); // Slow down movement
+            playerY += direction === 'down' ? 2 : (direction === 'up' ? -2 : 0);  // Slow down movement
           }
-        }, 100); // Move every 100ms while button is pressed
+        }, 200); // Pergerakan lebih lambat setiap 200ms
       });
 
       button.addEventListener('touchend', () => {
